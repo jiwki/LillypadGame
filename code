@@ -1,0 +1,120 @@
+app.background = 'lightBlue'
+
+#lillypads
+existingX = []
+existingY = []
+
+def lillypad(x,y):
+    Circle(x,y,30, fill='lightBlue')
+    Arc (x,y,60,60,30,330, rotateAngle=randrange(0,360), fill='green')
+    existingX.append(x)
+    existingY.append(y)
+
+Circle(200,40,35, fill='gold')
+lillypad(200,40)
+lillypad(200,360)
+lillypad(200,280)
+lillypad(280,200)
+lillypad(120,120)
+
+#random path
+def overlap(x,y):
+    for i in range(len(existingX)):
+        if abs(existingX[i] - x) < 60 and abs(existingY[i] - y) < 60:
+            return True
+    return False
+
+def path(y):
+    for _ in range(3):
+        overlapping = True
+        while overlapping:
+            newX = 40 + 80*randrange(0,5)
+            overlapping = overlap(newX, y)
+        lillypad(newX, y)
+        
+path(40)
+path(120)
+path(200)
+path(280)
+path(360)
+
+#frog
+frog = Group(
+    Rect(180,350,40,25, fill='lawnGreen'),
+    Circle(188,350,8, fill='lawnGreen'),
+    Circle(188,350,5, fill='white'),
+    Circle(188,350,3),
+    Circle(212,350,8, fill='lawnGreen'),
+    Circle(212,350,5, fill='white'),
+    Circle(212,350,3),
+    Arc(200,355,10,10,90,180))
+    
+frog.centerX = 200
+frog.centerY = 360
+
+
+#lilly
+lilly = Group(
+    Polygon(192,295,208,295,200,260, fill='pink'),
+    Arc(195,283,25,35,180,180, rotateAngle=-30, fill='pink'),
+    Arc(205,283,25,35,0,180, rotateAngle=30, fill='pink'))
+
+#key events
+def missPad():
+    for x in range(len(existingX)):
+        if frog.contains(existingX[x], existingY[x]):
+            return False
+    return True
+
+def onKeyPress(key):
+    if key == 'space':
+        instructions.visible = False
+    if key == 'w' or key == 'up':
+        if frog.centerY > 40:
+            frog.centerY -= 80
+    if key == 'd' or key == 'right':
+        if frog.centerX < 360:
+            frog.centerX += 80
+    if key == 'a' or key == 'left':
+        if frog.centerX > 40:
+            frog.centerX -= 80
+    if key == 'f':
+        addPad()
+    if frog.hits(200,40):
+        win.visible = True
+        app.stop()
+    if frog.hitsShape(lilly):
+        lose.visible = True
+    if (missPad()):
+        lose.visible = True
+
+def onKeyRelease(key):
+    nextX = choice(existingX)
+    nextY = choice(existingY)
+    if key == 'a' or key == 'w' or key == 'd' or key == 'up' or key == 'left' or key == 'right':
+        if not(frog.centerX == nextX and frog.centerY == nextY):
+            lilly.centerX = nextX
+            lilly.centerY = nextY
+
+#screens
+instructions = Group(
+    Rect(0,0,400,400, fill='pink', opacity=70),
+    Label('move the frog to the golden lillypad to win!', 200, 170, fill='black', size=13, bold = True,font='monospace'),
+    Label('(use w,a,d or the arrow keys)', 200, 185, fill='black', size=13, bold = True,font='monospace'),
+    Label('dont step on the lilly or fall into the water', 200, 200, fill='black', size=13, bold = True,font='monospace'),
+    Label('but be careful because you cant move back!', 200, 215, fill='black', size=13, bold = True,font='monospace'),
+    Label('press space to continue!', 200, 230, fill='black', size=13, bold = True,font='monospace'),
+    visible=True)
+
+win = Group(
+    Rect(0,0,400,400, fill='green', opacity=70),
+    Label('You Win! :)',200,200,size=50,bold=True,fill='white',font='monospace'),
+    visible = False)
+
+lose = Group(
+    Rect(0,0,400,400, fill='red', opacity=70),
+    Label('You Lose :(',200,200,size=50,bold=True,fill='white',font='monospace'),
+    visible = False)
+
+print(existingX)
+print(existingY)
